@@ -1,7 +1,6 @@
 package com.techelevator.tenmo.dao;
 
-public interface AccountDao {
+public class jdbcAccount {
 
 
 }
-
