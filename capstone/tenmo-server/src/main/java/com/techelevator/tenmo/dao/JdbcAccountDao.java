@@ -53,7 +53,7 @@ public class JdbcAccountDao implements AccountDao{
 
     @Override
     public Account createAccount(Account accountToAdd) {
-        String sql = "INSERT INTO accounts(user_id, balance) VALUES (,?,?) RETURNING account_id;";
+        String sql = "INSERT INTO accounts(user_id, balance) VALUES (?,?) RETURNING account_id;";
         Integer accountId = jdbcTemplate.queryForObject(sql, Integer.class, accountToAdd.getUserId(), accountToAdd.getBalance());
         return getIndividualAccount(accountId);
     }
