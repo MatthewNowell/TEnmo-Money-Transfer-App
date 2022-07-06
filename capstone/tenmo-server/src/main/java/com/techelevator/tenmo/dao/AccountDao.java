@@ -8,7 +8,7 @@ public interface AccountDao {
 
     List<Account> getAccounts();
     List<Account> getAccountsByUserID(int userId);
-    Account individualAccount(int accountId);
+    Account getIndividualAccount(int accountId);
     Account createAccount(Account accountToAdd);
     void updateAccount(Account accountToUpdate);
     void deleteAccount(int accountId);
