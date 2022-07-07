@@ -34,12 +34,15 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
         assertTransferMatch(expected, actual);
 
     }
-
+    @Test
     public void testGetTransfersByTransferType() {
+        List<Transfer> actual = sut.getTransfersByTransferType("Send");
+        assertTransferMatch(expected, actual);
     }
 
     public void testGetTransfersByTransferStatus() {
     }
+    
 
     public void testGetTransfersByOutgoingAccount() {
     }
