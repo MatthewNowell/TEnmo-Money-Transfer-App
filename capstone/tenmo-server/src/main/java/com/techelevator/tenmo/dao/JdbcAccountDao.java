@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component("ActiveJdbcAccountDao")
+@Component("ActiveAccountDao")
 public class JdbcAccountDao implements AccountDao{
 
     private JdbcTemplate jdbcTemplate;
@@ -20,7 +20,9 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public List<Account> getAccounts() {
         List<Account> accounts = new ArrayList<>();
-        String sql = "SELECT account_id, user_id, balance FROM accounts ORDER BY account_id ASC;";
+        String sql = "SELECT account_id, user_id, balance "+
+                "FROM accounts "+
+                "ORDER BY account_id ASC;";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
         while(sqlRowSet.next()){
             accounts.add(mapRowToAccount(sqlRowSet));
@@ -31,7 +33,10 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public List<Account> getAccountsByUserID(int userId) {
         List<Account> accounts = new ArrayList<>();
-        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE user_id = ? ORDER BY account_id ASC;";
+        String sql = "SELECT account_id, user_id, balance "+
+                "FROM accounts "+
+                "WHERE user_id = ? "+
+                "ORDER BY account_id ASC;";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, userId);
         while(sqlRowSet.next()){
             accounts.add(mapRowToAccount(sqlRowSet));
@@ -42,7 +47,10 @@ public class JdbcAccountDao implements AccountDao{
     @Override
     public Account getIndividualAccount(int accountId) {
         Account account = null;
-        String sql = "SELECT account_id, user_id, balance FROM accounts WHERE account_id = ? ORDER BY account_id ASC;";
+        String sql = "SELECT account_id, user_id, balance "+
+                "FROM accounts "+
+                "WHERE account_id = ? "+
+                "ORDER BY account_id ASC;";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
         if(sqlRowSet.next()){
             account = mapRowToAccount(sqlRowSet);
@@ -52,14 +60,18 @@ public class JdbcAccountDao implements AccountDao{
 
     @Override
     public Account createAccount(Account accountToAdd) {
-        String sql = "INSERT INTO accounts(user_id, balance) VALUES (?,?) RETURNING account_id;";
+        String sql = "INSERT INTO accounts(user_id, balance) "+
+                "VALUES (?,?) "+
+                "RETURNING account_id;";
         Integer accountId = jdbcTemplate.queryForObject(sql, Integer.class, accountToAdd.getUserId(), accountToAdd.getBalance());
         return getIndividualAccount(accountId);
     }
 
     @Override
     public void updateAccount(Account accountToUpdate) {
-        String sql = "UPDATE accounts SET user_id = ?, balance = ? WHERE account_id = ?;";
+        String sql = "UPDATE accounts "+
+                "SET user_id = ?, balance = ? "+
+                "WHERE account_id = ?;";
         jdbcTemplate.update(sql, accountToUpdate.getUserId(), accountToUpdate.getBalance(), accountToUpdate.getAccountId());
     }
 

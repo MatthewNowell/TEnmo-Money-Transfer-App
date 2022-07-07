@@ -11,7 +11,9 @@ public interface TransferDao {
     List<Transfer> getTransfersByTransferStatus(String transferStatus);
     List<Transfer> getTransfersByOutgoingAccount(int accountId);
     List<Transfer> getTransfersByIncomingAccount(int accountId);
+
     List<Transfer> getTransferByAccountNumber(int accountId);
+
     Transfer getTransfer(int id);
 
     Transfer addTransfer(Transfer transfer);
