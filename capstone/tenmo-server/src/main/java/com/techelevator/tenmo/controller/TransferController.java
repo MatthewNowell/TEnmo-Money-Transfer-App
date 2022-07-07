@@ -2,9 +2,11 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
+import com.techelevator.tenmo.exception.InvalidTransferException;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,8 +46,9 @@ public class TransferController {
         return transfers;
     }
 
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "/transfer", method = RequestMethod.POST)
-    public Transfer postTransfer(@RequestBody @Valid Transfer transfer){
+    public Transfer postTransfer(@RequestBody @Valid Transfer transfer) throws InvalidTransferException{
         Account fromAccount = accountDao.getIndividualAccount(transfer.getAccountFromId());
         Account toAccount = accountDao.getIndividualAccount(transfer.getAccountToId());
         if(fromAccount.getBalance().compareTo(transfer.getAmountToTransfer()) >= 0){
@@ -55,9 +58,9 @@ public class TransferController {
             toAccount.setBalance(toAccount.getBalance().add(transfer.getAmountToTransfer()));
             accountDao.updateAccount(toAccount);
 
-            transferDao.updateTransfer(transfer);
+            transferDao.addTransfer(transfer);
         } else{
-
+            throw new InvalidTransferException();
         }
         return transfer;
     }
