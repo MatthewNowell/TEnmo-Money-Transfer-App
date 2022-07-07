@@ -80,7 +80,7 @@ INSERT INTO account (user_id, balance) VALUES (1001, 10); --2002
 INSERT INTO account (user_id, balance) VALUES (1002, 2000); --2003
 INSERT INTO account (user_id, balance) VALUES (1002, 20); --2004
 
-INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, 2001, 2003, 500); --1
-INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 3, 2002, 2004, 300); --2
+INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 2, 2001, 2003, 500); --3001
+INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (2, 3, 2002, 2004, 300); --3002
 
 COMMIT;
