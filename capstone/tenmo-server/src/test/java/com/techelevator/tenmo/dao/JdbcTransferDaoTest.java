@@ -6,6 +6,9 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -15,6 +18,11 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
 
     private JdbcTransferDao sut;
 
+    private static final Transfer TRANSFER_1 = new Transfer(1,"Send","Approved",2001,2003, BigDecimal.valueOf(500));
+    private static final Transfer TRANSFER_2 = new Transfer(2, "Send", "Rejected", 2002, 2004, BigDecimal.valueOf(300));
+
+    private static List<Transfer> expected = new ArrayList<>(Arrays.asList(TRANSFER_1, TRANSFER_2));
+
     @Before
     public void setUp() throws Exception {
         sut = new JdbcTransferDao(dataSource);
@@ -22,6 +30,8 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
 
     @Test
     public void testGetTransfers() {
+        List<Transfer> actual = sut.getTransfers();
+        assertTransferMatch(actual, expected);
 
     }
 
