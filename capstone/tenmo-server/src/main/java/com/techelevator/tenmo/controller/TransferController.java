@@ -26,16 +26,19 @@ public class TransferController {
         this.accountDao = accountDao;
     }
 
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "/{id}/transfer", method = RequestMethod.GET)
     public Transfer getTransfer(@PathVariable int id){
         return transferDao.getTransfer(id);
     }
 
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "{userId}/user/balance", method = RequestMethod.GET)
     public List<Account> getListAccounts(@PathVariable int userId){
         return accountDao.getAccountsByUserID(userId);
     }
 
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "{userId}/user/history", method = RequestMethod.GET)
     public List<Transfer> getAllUserTransfers(@PathVariable int userId){
         List<Transfer> transfers = new ArrayList<>();
