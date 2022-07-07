@@ -47,7 +47,7 @@ public class TenmoDatabaseConfig {
 
         // Spring provides a convenience class called ScriptUtils for running external SQL scripts.
         // You'll find the test-data.sql script file in the test/resources folder.
-        ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource("test-data.sql"));
+        ScriptUtils.executeSqlScript(dataSource.getConnection(), new ClassPathResource("tenmo_test.sql"));
 
         return dataSource;
     }
