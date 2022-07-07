@@ -49,11 +49,24 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
         assertTransferMatch(TRANSFER_2, actual2);
     }
     
-
+    @Test
     public void testGetTransfersByOutgoingAccount() {
+        Transfer actual1 = sut.getTransfersByOutgoingAccount(3001).get(0);
+        Transfer actual2 = sut.getTransfersByOutgoingAccount(3002).get(0);
+
+        assertTransferMatch(TRANSFER_1, actual1);
+        assertTransferMatch(TRANSFER_2, actual2);
+
     }
 
+    @Test
     public void testGetTransfersByIncomingAccount() {
+        Transfer actual1 = sut.getTransfersByIncomingAccount(3001).get(0);
+        Transfer actual2 = sut.getTransfersByIncomingAccount(3002).get(0);
+
+        assertTransferMatch(TRANSFER_1, actual1);
+        assertTransferMatch(TRANSFER_2, actual2);
+
     }
 
     public void testGetTransferByAccountNumber() {
