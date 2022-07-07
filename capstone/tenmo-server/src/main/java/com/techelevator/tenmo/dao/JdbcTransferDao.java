@@ -109,8 +109,7 @@ public class JdbcTransferDao implements TransferDao {
                 "FROM transfer t "+
                 "JOIN transfer_type AS tt ON t.transfer_type_id = tt.transfer_type_id "+
                 "JOIN transfer_status AS ts ON t.transfer_status_id = ts.transfer_status_id "+
-                "WHERE account_to = ? "+
-                "ORDER BY transfer_id";
+                "WHERE transfer_id = ?;";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
         if(sqlRowSet.next()) {
             transfer = mapRowtoTransfer(sqlRowSet);
