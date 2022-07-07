@@ -23,6 +23,9 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
 
     private static List<Transfer> expected = new ArrayList<>(Arrays.asList(TRANSFER_1, TRANSFER_2));
 
+    private static Transfer transferToAdd = new Transfer("Send", "Pending", 2001, 2002, BigDecimal.valueOf(10.0));
+    private static Transfer transferToUpdate = new Transfer(3001,"Send","Rejected",2001,2003, BigDecimal.valueOf(500000.0));
+
     @Before
     public void setUp() throws Exception {
         sut = new JdbcTransferDao(dataSource);
@@ -51,8 +54,8 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
     
     @Test
     public void testGetTransfersByOutgoingAccount() {
-        Transfer actual1 = sut.getTransfersByOutgoingAccount(3001).get(0);
-        Transfer actual2 = sut.getTransfersByOutgoingAccount(3002).get(0);
+        Transfer actual1 = sut.getTransfersByOutgoingAccount(2001).get(0);
+        Transfer actual2 = sut.getTransfersByOutgoingAccount(2002).get(0);
 
         assertTransferMatch(TRANSFER_1, actual1);
         assertTransferMatch(TRANSFER_2, actual2);
@@ -61,27 +64,37 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
 
     @Test
     public void testGetTransfersByIncomingAccount() {
-        Transfer actual1 = sut.getTransfersByIncomingAccount(3001).get(0);
-        Transfer actual2 = sut.getTransfersByIncomingAccount(3002).get(0);
+        Transfer actual1 = sut.getTransfersByIncomingAccount(2003).get(0);
+        Transfer actual2 = sut.getTransfersByIncomingAccount(2004).get(0);
 
         assertTransferMatch(TRANSFER_1, actual1);
         assertTransferMatch(TRANSFER_2, actual2);
 
     }
 
-    public void testGetTransferByAccountNumber() {
-    }
-
+    @Test
     public void testGetTransfer() {
+        assertTransferMatch(TRANSFER_1, sut.getTransfer(3001));
+        assertTransferMatch(TRANSFER_2, sut.getTransfer(3002));
     }
 
+    @Test
     public void testAddTransfer() {
+        sut.addTransfer(transferToAdd);
+        transferToAdd.setId(3003);
+        assertTransferMatch(transferToAdd, sut.getTransfer(3003));
     }
 
+    @Test
     public void testUpdateTransfer() {
+        sut.updateTransfer(transferToUpdate);
+        assertTransferMatch(transferToUpdate, sut.getTransfer(3001));
     }
 
+    @Test
     public void testDeleteTransfer() {
+        sut.deleteTransfer(3001);
+        assertNull(sut.getTransfer(3001));
     }
 
     private void assertTransferMatch(List<Transfer> expectedList, List<Transfer> actualList){

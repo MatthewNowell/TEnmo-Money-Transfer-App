@@ -106,11 +106,11 @@ public class JdbcTransferDao implements TransferDao {
     public Transfer getTransfer(int id) {
         Transfer transfer = null;
         String sql = "SELECT t.transfer_id, tt.transfer_type_desc, ts.transfer_status_desc, t.account_from, t.account_to, t.amount "+
-                "FROM transfer t "+
+                "FROM transfer AS t "+
                 "JOIN transfer_type AS tt ON t.transfer_type_id = tt.transfer_type_id "+
                 "JOIN transfer_status AS ts ON t.transfer_status_id = ts.transfer_status_id "+
                 "WHERE transfer_id = ?;";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, id);
         if(sqlRowSet.next()) {
             transfer = mapRowtoTransfer(sqlRowSet);
         }
@@ -119,18 +119,18 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public Transfer addTransfer(Transfer transfer) {
-        String sql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount) "+
+        String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) "+
                 "VALUES ((SELECT transfer_type_id FROM transfer_type WHERE transfer_type_desc = ?), "+
                 "(SELECT transfer_status_id FROM transfer_status WHERE transfer_status_desc = ?), "+
                 "?,?,?) "+
-                "RETURNING transfer_id);";
+                "RETURNING transfer_id;";
         Integer transferId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferType(), transfer.getTransferStatus(), transfer.getAccountFromId(), transfer.getAccountToId(), transfer.getAmountToTransfer());
         return getTransfer(transferId);
     }
 
     @Override
     public void updateTransfer(Transfer transfer) {
-        String sql = "UPDATE transfers "+
+        String sql = "UPDATE transfer "+
                 "SET transfer_type_id = (SELECT transfer_type_id FROM transfer_type WHERE transfer_type_desc = ?), "+
                 "transfer_status_id = (SELECT transfer_status_id FROM transfer_status WHERE transfer_status_desc = ?), "+
                 "account_from = ?, account_to = ?, amount = ? "+
@@ -140,7 +140,7 @@ public class JdbcTransferDao implements TransferDao {
 
     @Override
     public void deleteTransfer(int id) {
-        String sql = "DELETE FROM transfers WHERE transfer_id = ?;";
+        String sql = "DELETE FROM transfer WHERE transfer_id = ?;";
         jdbcTemplate.update(sql, id);
     }
 

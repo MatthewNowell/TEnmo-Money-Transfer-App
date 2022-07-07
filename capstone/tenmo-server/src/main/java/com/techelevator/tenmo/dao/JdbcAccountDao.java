@@ -21,7 +21,7 @@ public class JdbcAccountDao implements AccountDao{
     public List<Account> getAccounts() {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT account_id, user_id, balance "+
-                "FROM accounts "+
+                "FROM account "+
                 "ORDER BY account_id ASC;";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
         while(sqlRowSet.next()){
@@ -34,7 +34,7 @@ public class JdbcAccountDao implements AccountDao{
     public List<Account> getAccountsByUserID(int userId) {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT account_id, user_id, balance "+
-                "FROM accounts "+
+                "FROM account "+
                 "WHERE user_id = ? "+
                 "ORDER BY account_id ASC;";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, userId);
@@ -48,10 +48,9 @@ public class JdbcAccountDao implements AccountDao{
     public Account getIndividualAccount(int accountId) {
         Account account = null;
         String sql = "SELECT account_id, user_id, balance "+
-                "FROM accounts "+
-                "WHERE account_id = ? "+
-                "ORDER BY account_id ASC;";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
+                "FROM account "+
+                "WHERE account_id = ?;";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, accountId);
         if(sqlRowSet.next()){
             account = mapRowToAccount(sqlRowSet);
         }
@@ -60,7 +59,7 @@ public class JdbcAccountDao implements AccountDao{
 
     @Override
     public Account createAccount(Account accountToAdd) {
-        String sql = "INSERT INTO accounts(user_id, balance) "+
+        String sql = "INSERT INTO account(user_id, balance) "+
                 "VALUES (?,?) "+
                 "RETURNING account_id;";
         Integer accountId = jdbcTemplate.queryForObject(sql, Integer.class, accountToAdd.getUserId(), accountToAdd.getBalance());
@@ -69,7 +68,7 @@ public class JdbcAccountDao implements AccountDao{
 
     @Override
     public void updateAccount(Account accountToUpdate) {
-        String sql = "UPDATE accounts "+
+        String sql = "UPDATE account "+
                 "SET user_id = ?, balance = ? "+
                 "WHERE account_id = ?;";
         jdbcTemplate.update(sql, accountToUpdate.getUserId(), accountToUpdate.getBalance(), accountToUpdate.getAccountId());
@@ -77,8 +76,8 @@ public class JdbcAccountDao implements AccountDao{
 
     @Override
     public void deleteAccount(int accountId) {
-        String sql = "DELETE FROM accounts WHERE account_id = ?;";
-        jdbcTemplate.update(sql, accountId);
+        String sql = "DELETE FROM transfer WHERE account_to = ? OR account_from = ?; DELETE FROM account WHERE account_id = ?;";
+        jdbcTemplate.update(sql, accountId, accountId, accountId);
     }
 
     private Account mapRowToAccount(SqlRowSet sqlRowSet){
