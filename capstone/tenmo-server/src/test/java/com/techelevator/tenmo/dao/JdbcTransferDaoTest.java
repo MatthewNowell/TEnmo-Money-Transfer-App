@@ -32,15 +32,21 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
     public void testGetTransfers() {
         List<Transfer> actual = sut.getTransfers();
         assertTransferMatch(expected, actual);
-
     }
+
     @Test
     public void testGetTransfersByTransferType() {
         List<Transfer> actual = sut.getTransfersByTransferType("Send");
         assertTransferMatch(expected, actual);
     }
 
+    @Test
     public void testGetTransfersByTransferStatus() {
+        Transfer actual1 = sut.getTransfersByTransferStatus("Approved").get(0);
+        Transfer actual2 = sut.getTransfersByTransferStatus("Rejected").get(0);
+
+        assertTransferMatch(TRANSFER_1, actual1);
+        assertTransferMatch(TRANSFER_2, actual2);
     }
     
 
