@@ -45,7 +45,7 @@ public class TenmoService {
     public Account[] viewCurrentBalance(AuthenticatedUser user){
         Account[] currentBalance = null;
         try {
-            ResponseEntity<Account[]> response = restTemplate.exchange(basicAPIUrl + "/" + user.getUser().getId() + "/user/balance", HttpMethod.GET, makeAuthEntity(user.getToken()), Account[].class);
+            ResponseEntity<Account[]> response = restTemplate.exchange(basicAPIUrl + user.getUser().getId() + "/user/balance", HttpMethod.GET, makeAuthEntity(user.getToken()), Account[].class);
             currentBalance = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());
@@ -56,7 +56,7 @@ public class TenmoService {
     public Transfer[] viewTransferHistory(AuthenticatedUser user){
         Transfer[] transferHistory = null;
         try{
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(basicAPIUrl + "/" + user.getUser().getId() + "/user/history", HttpMethod.GET, makeAuthEntity(user.getToken()), Transfer[].class);
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(basicAPIUrl + user.getUser().getId() + "/user/history", HttpMethod.GET, makeAuthEntity(user.getToken()), Transfer[].class);
             transferHistory = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());
@@ -67,7 +67,7 @@ public class TenmoService {
     public Transfer[] viewPendingRequests(AuthenticatedUser user){
         Transfer[] pendingRequests = null;
         try{
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(basicAPIUrl + "/" + user.getUser().getId() + "/user/Pending/transfer", HttpMethod.GET, makeAuthEntity(user.getToken()), Transfer[].class);
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(basicAPIUrl + user.getUser().getId() + "/user/Pending/transfer", HttpMethod.GET, makeAuthEntity(user.getToken()), Transfer[].class);
             pendingRequests = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());
@@ -86,30 +86,30 @@ public class TenmoService {
 
         Transfer returnedTransfer = null;
         try {
-            returnedTransfer = restTemplate.postForObject(basicAPIUrl + "/transfer/", entity, Transfer.class);
+            returnedTransfer = restTemplate.postForObject(basicAPIUrl + "transfer/", entity, Transfer.class);
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());
         }
         return returnedTransfer;
     }
 
-    public boolean sendBucks(AuthenticatedUser user, int transferId){
+    public boolean sendBucks(AuthenticatedUser user, int transferId, String transferStatus){
         Transfer requestedTransfer = getTransfer(user, transferId);
-        if(requestedTransfer != null){
+        requestedTransfer.setTransferStatus(transferStatus);
+        HttpEntity<Transfer> entity = makeTransferEntity(requestedTransfer, user.getToken());
             try {
-                restTemplate.put(basicAPIUrl + "/transfer/" + transferId + "/pay", requestedTransfer);
+                restTemplate.put(basicAPIUrl + "/transfer/pay", entity);
                 return true;
             } catch (RestClientResponseException | ResourceAccessException e){
                 BasicLogger.log(e.getMessage());
             }
-        }
         return false;
     }
 
     public Transfer getTransfer(AuthenticatedUser user, int transferId){
         Transfer transfer = null;
         try{
-            ResponseEntity<Transfer> response = restTemplate.exchange(basicAPIUrl + "/" + transferId + "/transfer",HttpMethod.GET, makeAuthEntity(user.getToken()), Transfer.class);
+            ResponseEntity<Transfer> response = restTemplate.exchange(basicAPIUrl + transferId + "/transfer",HttpMethod.GET, makeAuthEntity(user.getToken()), Transfer.class);
             transfer = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());

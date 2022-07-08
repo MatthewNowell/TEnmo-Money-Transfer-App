@@ -1,5 +1,6 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.exceptions.InvalidTransferException;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
@@ -86,6 +87,10 @@ public class App {
                 sendBucks();
             } else if (menuSelection == 5) {
                 requestBucks();
+            } else if (menuSelection == 6){
+                retrieveTransfer();
+            } else if (menuSelection == 7){
+                payRequest();
             } else if (menuSelection == 0) {
                 continue;
             } else {
@@ -133,6 +138,77 @@ public class App {
         System.out.println("Money Requested!");
 	}
 
+    private void retrieveTransfer(){
+        Transfer transfer = null;
+        System.out.println("Please enter a valid Transfer ID > ");
+        int transferId = 0;
+        try{
+            transferId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e){
+            System.err.println("Invalid entry");
+        }
+        if(transferId != 0) {
+            transfer = tenmoService.getTransfer(currentUser, transferId);
+            if(transfer == null){
+                System.out.println("That Transfer Id does not exist");
+            } else {
+                System.out.println(transfer.printPretty());
+            }
+        }
+    }
+
+    private void payRequest() {
+        Transfer[] transfers = tenmoService.viewPendingRequests(currentUser);
+        Transfer selectedTransfer = null;
+        int transferId = 0;
+        System.out.println("Here is the list of current Pending Transfers");
+        for (Transfer t : transfers) {
+            System.out.println(t.printPretty());
+        }
+
+        System.out.println("Please enter a valid Transfer ID > ");
+        try {
+            transferId = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid entry");
+            return;
+        }
+        try{
+            if (transferId != 0) {
+                for (Transfer t : transfers) {
+                    if (t.getId() == transferId) {
+                        System.out.println("Would you like to (A)ccept or (R)eject this transaction? >");
+                        String input = scanner.nextLine();
+                        if(input.equalsIgnoreCase("a")){
+                            boolean success = tenmoService.sendBucks(currentUser, t.getId(), "Approved");
+                            if(success) {
+                                System.out.println("Money Sent!");
+                            } else {
+                                System.err.println("Something went wrong, Please try again later");
+                            }
+                            return;
+                        } else if(input.equalsIgnoreCase("r")){
+                            boolean success = tenmoService.sendBucks(currentUser, t.getId(), "Rejected");
+                            if(success) {
+                                System.out.println("Request Rejected!");
+                            } else{
+                                System.err.println("Something went wrong, Please try again later");
+                            }
+                            return;
+                        } else{
+                            System.err.println("Invalid entry");
+                        }
+                    }
+                }
+                throw new InvalidTransferException();
+
+            }
+        } catch (InvalidTransferException e){
+            System.err.println("Invalid Transfer Id");
+            }
+    }
+
+
     private BigDecimal getAmountToSend(){
         BigDecimal amountToSend = null;
 
@@ -178,5 +254,6 @@ public class App {
         }
         return accountToSend;
     }
+
 
 }

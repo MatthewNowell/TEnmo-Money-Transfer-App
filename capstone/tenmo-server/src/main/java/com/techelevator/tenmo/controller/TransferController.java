@@ -66,15 +66,14 @@ public class TransferController {
             transfer = transferServices.processTransfer(transfer);
         }
         transferDao.addTransfer(transfer);
-        //transferDao.commitToDatabase();
         return transfer;
     }
 
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    /*@ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "/{requestStatus}/transfer", method = RequestMethod.GET)
     public List<Transfer> getTransactionByStatusCode(@PathVariable String requestStatus){
         return transferDao.getTransfersByTransferStatus(requestStatus);
-    }
+    }*/
 
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "/{userId}/user/{requestStatus}/transfer", method = RequestMethod.GET)
@@ -86,6 +85,20 @@ public class TransferController {
     @RequestMapping(path = "/accounts", method = RequestMethod.GET)
     public List<Account> getAllAccounts(){
         return accountDao.getAccounts();
+    }
+
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/transfer/pay", method = RequestMethod.PUT)
+    public boolean changeRequest(@RequestBody Transfer transfer) throws InvalidTransferException{
+        if(transfer == null){
+            throw new InvalidTransferException();
+        }
+        try {
+            transferDao.updateTransfer(transferServices.updateTransfer(transfer));
+            return true;
+        } catch (InvalidTransferException e){
+            return false;
+        }
     }
 
 }
