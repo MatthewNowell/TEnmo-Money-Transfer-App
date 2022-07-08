@@ -77,7 +77,7 @@ public class TransferController {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "/{userId}/user/{requestStatus}/transfer", method = RequestMethod.GET)
     public List<Transfer> getTransfersByStatusCodeAndUser(@PathVariable int userId, @PathVariable String requestStatus){
-        return transferDao.getTransfersByUserIdAndTransferStatusIncoming(userId, requestStatus);
+        return transferDao.getTransfersByUserIdAndTransferStatus(userId, requestStatus);
     }
 
 }

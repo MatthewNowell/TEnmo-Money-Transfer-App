@@ -2,7 +2,6 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tests.BaseDaoTest;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -99,8 +98,8 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
 
     @Test
     public void testGetTransfersByUserIdAndTransferStatusIncoming(){
-        Transfer actual1 = sut.getTransfersByUserIdAndTransferStatusIncoming(1001, "Approved").get(0);
-        Transfer actual2 = sut.getTransfersByUserIdAndTransferStatusIncoming(1001, "Rejected").get(0);
+        Transfer actual1 = sut.getTransfersByUserIdAndTransferStatus(1001, "Approved").get(0);
+        Transfer actual2 = sut.getTransfersByUserIdAndTransferStatus(1001, "Rejected").get(0);
         assertTransferMatch(TRANSFER_1, actual1);
         assertTransferMatch(TRANSFER_2, actual2);
     }
