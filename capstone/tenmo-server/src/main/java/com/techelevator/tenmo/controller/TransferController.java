@@ -33,13 +33,13 @@ public class TransferController {
     }
 
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    @RequestMapping(path = "{userId}/user/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "/{userId}/user/balance", method = RequestMethod.GET)
     public List<Account> getListAccounts(@PathVariable int userId){
         return accountDao.getAccountsByUserID(userId);
     }
 
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    @RequestMapping(path = "{userId}/user/history", method = RequestMethod.GET)
+    @RequestMapping(path = "/{userId}/user/history", method = RequestMethod.GET)
     public List<Transfer> getAllUserTransfers(@PathVariable int userId){
         List<Transfer> transfers = new ArrayList<>();
         List<Account> accounts = accountDao.getAccountsByUserID(userId);
@@ -67,4 +67,17 @@ public class TransferController {
         }
         return transfer;
     }
+
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/{requestStatus}/transfer", method = RequestMethod.GET)
+    public List<Transfer> getTransactionByStatusCode(@PathVariable String requestStatus){
+        return transferDao.getTransfersByTransferStatus(requestStatus);
+    }
+
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/{userId}/user/{requestStatus}/transfer", method = RequestMethod.GET)
+    public List<Transfer> getTransfersByStatusCodeAndUser(@PathVariable int userId, @PathVariable String requestStatus){
+        return transferDao.getTransfersByUserIdAndTransferStatusIncoming(userId, requestStatus);
+    }
+
 }
