@@ -16,8 +16,8 @@ public class JdbcTransferDao implements TransferDao {
     private DataSource dataSource;
     public JdbcTransferDao(DataSource dataSource) throws SQLException {
         jdbcTemplate = new JdbcTemplate(dataSource);
-        this.dataSource = dataSource;
         dataSource.getConnection().setAutoCommit(false);
+        this.dataSource = dataSource;
     }
 
     @Override

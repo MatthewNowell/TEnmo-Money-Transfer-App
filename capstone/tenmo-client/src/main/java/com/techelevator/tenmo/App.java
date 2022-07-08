@@ -9,6 +9,8 @@ import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TenmoService;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class App {
@@ -103,42 +105,78 @@ public class App {
 	private void viewTransferHistory() {
 		Transfer[] transfers = tenmoService.viewTransferHistory(currentUser);
         for(Transfer transfer : transfers){
-            System.out.println(String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%7s|Account From|%-10s|Account To|%-10s|Amount Of Transfer|%.2f", transfer.getId(), transfer.getTransferType(), transfer.getTransferStatus(), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountFromId()), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountToId()), transfer.getAmountToTransfer().doubleValue()));
+            System.out.println(String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%8s|Account From|%-10s|Account To|%-10s|Amount Of Transfer|%.2f", transfer.getId(), transfer.getTransferType(), transfer.getTransferStatus(), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountFromId()), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountToId()), transfer.getAmountToTransfer().doubleValue()));
         }
 	}
 
 	private void viewPendingRequests() {
         Transfer[] transfers = tenmoService.viewPendingRequests(currentUser);
         for(Transfer transfer : transfers){
-            System.out.println(String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%7s|Account From|%-10s|Account To|%-10s|Amount Of Transfer|%.2f", transfer.getId(), transfer.getTransferType(), transfer.getTransferStatus(), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountFromId()), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountToId()), transfer.getAmountToTransfer().doubleValue()));
+            System.out.println(String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%8s|Account From|%-10s|Account To|%-10s|Amount Of Transfer|%.2f", transfer.getId(), transfer.getTransferType(), transfer.getTransferStatus(), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountFromId()), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountToId()), transfer.getAmountToTransfer().doubleValue()));
         }
 	}
 
 	private void sendBucks() {
-		BigDecimal amountToSend;
-        int accountToId = 0;
-
-        try{
-            System.out.print("Please enter a valid amount to send to your friend!! > ");
-            amountToSend = BigDecimal.valueOf(Double.parseDouble(scanner.nextLine()));
-            if(amountToSend.compareTo(BigDecimal.valueOf(0)) <=0 ){
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e){
-            System.err.println("Please enter a valid amount");
-        }
-
-        Account[] accounts = tenmoService.getAllAccounts(currentUser);
-        for(Account account : accounts){
-            if(account.getUserId() != currentUser.getUser().getId()){
-                System.out.println(String.format("|Account Holder|%-10s|Current Balance|$ %2.2f", tenmoService.convertAccountIdToUserName(currentUser, account.getAccountId()), account.getBalance().doubleValue()));
-            }
-        }
+        BigDecimal amountToSend = getAmountToSend();
+        int accountToSend = getAccountToSend(tenmoService.getAllAccounts(currentUser));
+        int accountFromSend = tenmoService.viewCurrentBalance(currentUser)[0].getAccountId();
+        Transfer transfer = tenmoService.makeTransfer(currentUser, amountToSend, "Send", accountFromSend, accountToSend);
+        System.out.println("Money Sent!");
+        System.out.println(transfer.printPretty());
 	}
 
 	private void requestBucks() {
-		// TODO Auto-generated method stub
-		
+        BigDecimal amountToSend = getAmountToSend();
+        int accountToSend = getAccountToSend(tenmoService.getAllAccounts(currentUser));
+        int accountFromSend = tenmoService.viewCurrentBalance(currentUser)[0].getAccountId();
+        tenmoService.makeTransfer(currentUser,amountToSend, "Request", accountFromSend, accountToSend);
+        System.out.println("Money Requested!");
 	}
+
+    private BigDecimal getAmountToSend(){
+        BigDecimal amountToSend = null;
+
+        while (amountToSend == null){
+            try {
+                System.out.print("Please enter an amount of money to send/request >");
+                amountToSend = BigDecimal.valueOf(Double.parseDouble(scanner.nextLine()));
+                if (amountToSend.compareTo(BigDecimal.valueOf(0)) <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Please enter a valid amount");
+                amountToSend = null;
+            }
+        }
+        return amountToSend;
+    }
+
+    private int getAccountToSend(Account[] accounts){
+        int accountToSend = 0;
+        boolean accountSet = false;
+        Map<String,Integer> accountMap = new HashMap<>();
+
+        for(Account account : accounts){
+            if(account.getUserId() != currentUser.getUser().getId()){
+                String userName = tenmoService.convertAccountIdToUserName(currentUser, account.getAccountId());
+                accountMap.put(userName.toLowerCase(), account.getAccountId());
+                System.out.println(String.format("|Account Holder|%-10s|", userName));
+            }
+        }
+
+        while (!accountSet){
+            System.out.print("Please enter the username you would like to send/request >");
+            accountToSend = accountMap.get(scanner.nextLine().toLowerCase());
+            for(Account account : accounts){
+                if(account.getAccountId() == accountToSend){
+                    accountSet = true;
+                }
+            }
+            if(!accountSet) {
+                System.err.println("Please enter a valid user");
+            }
+        }
+        return accountToSend;
+    }
 
 }

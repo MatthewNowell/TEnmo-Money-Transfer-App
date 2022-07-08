@@ -19,6 +19,7 @@ public class JdbcTransferDaoTest extends BaseDaoTest {
 
     private static final Transfer TRANSFER_1 = new Transfer(3001,"Send","Approved",2001,2003, BigDecimal.valueOf(500.0));
     private static final Transfer TRANSFER_2 = new Transfer(3002, "Send", "Rejected", 2002, 2004, BigDecimal.valueOf(300.0));
+    private static final Transfer TRANSFER_3 = new Transfer(3003, "Send", "Pending", 2001, 2002, BigDecimal.valueOf(10));
 
     private static List<Transfer> expected = new ArrayList<>(Arrays.asList(TRANSFER_1, TRANSFER_2));
 

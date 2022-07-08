@@ -23,7 +23,7 @@ public class TenmoService {
     public Account[] getAllAccounts(AuthenticatedUser user){
         Account[] accounts = null;
         try {
-            ResponseEntity<Account[]> response = restTemplate.exchange(basicAPIUrl + "/account", HttpMethod.GET, makeAuthEntity(user.getToken()), Account[].class);
+            ResponseEntity<Account[]> response = restTemplate.exchange(basicAPIUrl + "/accounts", HttpMethod.GET, makeAuthEntity(user.getToken()), Account[].class);
             accounts = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e){
             BasicLogger.log(e.getMessage());

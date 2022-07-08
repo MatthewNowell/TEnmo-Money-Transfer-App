@@ -11,7 +11,6 @@ public class Transfer {
     private String transferStatus;
     private int accountFromId;
     private int accountToId;
-    @Min(0)
     private BigDecimal amountToTransfer;
 
     public Transfer(){}

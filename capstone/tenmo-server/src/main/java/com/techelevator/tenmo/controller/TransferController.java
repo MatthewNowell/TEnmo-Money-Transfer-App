@@ -66,7 +66,7 @@ public class TransferController {
             transfer = transferServices.processTransfer(transfer);
         }
         transferDao.addTransfer(transfer);
-        transferDao.commitToDatabase();
+        //transferDao.commitToDatabase();
         return transfer;
     }
 

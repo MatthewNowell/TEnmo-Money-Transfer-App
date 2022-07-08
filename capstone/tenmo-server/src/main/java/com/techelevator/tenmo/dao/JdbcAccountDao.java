@@ -18,8 +18,8 @@ public class JdbcAccountDao implements AccountDao{
 
     public JdbcAccountDao(DataSource dataSource) throws SQLException {
         jdbcTemplate = new JdbcTemplate(dataSource);
-        dataSource.getConnection().setAutoCommit(false);
         this.dataSource = dataSource;
+        dataSource.getConnection().setAutoCommit(false);
     }
 
 

@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class TransferServices {
 
     private static final String REJECTED_STATUS = "Rejected";
-    private static final String ACCEPTED_STATUS = "Accepted";
+    private static final String ACCEPTED_STATUS = "Approved";
     private static final String PENDING_STATUS = "Pending";
 
     private AccountDao accountDao;
@@ -32,7 +32,7 @@ public class TransferServices {
                 fromAccount.setBalance(fromAccount.getBalance().subtract(incomingTransfer.getAmountToTransfer()));
                 accountDao.updateAccount(toAccount);
                 accountDao.updateAccount(fromAccount);
-                accountDao.commitToDatabase();
+                //accountDao.commitToDatabase();
             }
         }
         else{

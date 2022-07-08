@@ -103,4 +103,8 @@ public class Transfer {
                 ", amountToTransfer=" + amountToTransfer +
                 '}';
     }
+
+    public String printPretty(){
+        return String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%7sAmount Of Transfer|%.2f", getId(), getTransferType(), getTransferStatus(), getAmountToTransfer().doubleValue());
+    }
 }
