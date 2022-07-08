@@ -1,10 +1,15 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TenmoService;
+
+import java.math.BigDecimal;
+import java.util.Scanner;
 
 public class App {
 
@@ -13,6 +18,8 @@ public class App {
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
     private final TenmoService tenmoService = new TenmoService(API_BASE_URL);
+
+    private final Scanner scanner = new Scanner(System.in);
 
     private AuthenticatedUser currentUser;
 
@@ -87,23 +94,46 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
-		
+        Account[] accounts = tenmoService.viewCurrentBalance(currentUser);
+        for(Account account : accounts){
+            System.out.println(String.format("|Current Balance|$ %2.2f", account.getBalance().doubleValue()));
+        }
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-		
+		Transfer[] transfers = tenmoService.viewTransferHistory(currentUser);
+        for(Transfer transfer : transfers){
+            System.out.println(String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%7s|Account From|%-10s|Account To|%-10s|Amount Of Transfer|%.2f", transfer.getId(), transfer.getTransferType(), transfer.getTransferStatus(), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountFromId()), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountToId()), transfer.getAmountToTransfer().doubleValue()));
+        }
 	}
 
 	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
-		
+        Transfer[] transfers = tenmoService.viewPendingRequests(currentUser);
+        for(Transfer transfer : transfers){
+            System.out.println(String.format("|ID|%-6d|Transfer Type|%7s|Transfer Status|%7s|Account From|%-10s|Account To|%-10s|Amount Of Transfer|%.2f", transfer.getId(), transfer.getTransferType(), transfer.getTransferStatus(), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountFromId()), tenmoService.convertAccountIdToUserName(currentUser, transfer.getAccountToId()), transfer.getAmountToTransfer().doubleValue()));
+        }
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+		BigDecimal amountToSend;
+        int accountToId = 0;
+
+        try{
+            System.out.print("Please enter a valid amount to send to your friend!! > ");
+            amountToSend = BigDecimal.valueOf(Double.parseDouble(scanner.nextLine()));
+            if(amountToSend.compareTo(BigDecimal.valueOf(0)) <=0 ){
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e){
+            System.err.println("Please enter a valid amount");
+        }
+
+        Account[] accounts = tenmoService.getAllAccounts(currentUser);
+        for(Account account : accounts){
+            if(account.getUserId() != currentUser.getUser().getId()){
+                System.out.println(String.format("|Account Holder|%-10s|Current Balance|$ %2.2f", tenmoService.convertAccountIdToUserName(currentUser, account.getAccountId()), account.getBalance().doubleValue()));
+            }
+        }
 	}
 
 	private void requestBucks() {

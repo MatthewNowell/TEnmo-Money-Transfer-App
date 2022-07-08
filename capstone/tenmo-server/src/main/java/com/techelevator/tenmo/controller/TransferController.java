@@ -5,12 +5,14 @@ import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.exception.InvalidTransferException;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.services.TransferServices;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,18 @@ public class TransferController {
 
     private TransferDao transferDao;
     private AccountDao accountDao;
+    private TransferServices transferServices = new TransferServices();
 
     public TransferController(@Qualifier("ActiveTransferDao") TransferDao transferDao, @Qualifier("ActiveAccountDao")AccountDao accountDao){
         this.transferDao = transferDao;
         this.accountDao = accountDao;
+        transferServices.setAccountDao(accountDao);
+    }
+
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/{accountId}/account", method = RequestMethod.GET)
+    public String getUserNameFromAccountId(@PathVariable int accountId){
+        return accountDao.getUserNameByAccountId(accountId);
     }
 
     @ResponseStatus(value = HttpStatus.ACCEPTED)
@@ -51,20 +61,12 @@ public class TransferController {
 
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @RequestMapping(path = "/transfer", method = RequestMethod.POST)
-    public Transfer postTransfer(@RequestBody @Valid Transfer transfer) throws InvalidTransferException{
-        Account fromAccount = accountDao.getIndividualAccount(transfer.getAccountFromId());
-        Account toAccount = accountDao.getIndividualAccount(transfer.getAccountToId());
-        if(fromAccount.getBalance().compareTo(transfer.getAmountToTransfer()) >= 0){
-            fromAccount.setBalance(fromAccount.getBalance().subtract(transfer.getAmountToTransfer()));
-            accountDao.updateAccount(fromAccount);
-
-            toAccount.setBalance(toAccount.getBalance().add(transfer.getAmountToTransfer()));
-            accountDao.updateAccount(toAccount);
-
-            transferDao.addTransfer(transfer);
-        } else{
-            throw new InvalidTransferException();
+    public Transfer postTransfer(@RequestBody @Valid Transfer transfer) throws InvalidTransferException, SQLException {
+        if(transfer.getTransferType().equals("Send")) {
+            transfer = transferServices.processTransfer(transfer);
         }
+        transferDao.addTransfer(transfer);
+        transferDao.commitToDatabase();
         return transfer;
     }
 
@@ -78,6 +80,12 @@ public class TransferController {
     @RequestMapping(path = "/{userId}/user/{requestStatus}/transfer", method = RequestMethod.GET)
     public List<Transfer> getTransfersByStatusCodeAndUser(@PathVariable int userId, @PathVariable String requestStatus){
         return transferDao.getTransfersByUserIdAndTransferStatus(userId, requestStatus);
+    }
+
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    @RequestMapping(path = "/accounts", method = RequestMethod.GET)
+    public List<Account> getAllAccounts(){
+        return accountDao.getAccounts();
     }
 
 }

@@ -8,5 +8,7 @@ import java.net.http.HttpResponse;
 @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
 public class InvalidTransferException extends Exception{
 
-
+    public InvalidTransferException(){
+        super();
+    }
 }

@@ -6,13 +6,19 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component("ActiveTransferDao")
 public class JdbcTransferDao implements TransferDao {
     private JdbcTemplate jdbcTemplate;
-    public JdbcTransferDao(DataSource datasource){jdbcTemplate = new JdbcTemplate(datasource);}
+    private DataSource dataSource;
+    public JdbcTransferDao(DataSource dataSource) throws SQLException {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+        this.dataSource = dataSource;
+        dataSource.getConnection().setAutoCommit(false);
+    }
 
     @Override
     public List<Transfer> getTransfers() {
@@ -171,5 +177,9 @@ public class JdbcTransferDao implements TransferDao {
         transfer.setAmountToTransfer(sqlRowSet.getBigDecimal("amount"));
 
         return transfer;
+    }
+
+    public void commitToDatabase() throws SQLException{
+        dataSource.getConnection().commit();
     }
 }

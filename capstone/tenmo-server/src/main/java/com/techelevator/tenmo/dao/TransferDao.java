@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface TransferDao {
@@ -22,4 +23,5 @@ public interface TransferDao {
     void updateTransfer(Transfer transfer);
     void deleteTransfer(int id);
 
+    void commitToDatabase() throws SQLException;
 }

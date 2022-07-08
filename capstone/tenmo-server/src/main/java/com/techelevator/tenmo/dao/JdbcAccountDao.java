@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +14,13 @@ import java.util.List;
 public class JdbcAccountDao implements AccountDao{
 
     private JdbcTemplate jdbcTemplate;
+    private DataSource dataSource;
 
-    public JdbcAccountDao(DataSource dataSource){jdbcTemplate = new JdbcTemplate(dataSource);}
+    public JdbcAccountDao(DataSource dataSource) throws SQLException {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+        dataSource.getConnection().setAutoCommit(false);
+        this.dataSource = dataSource;
+    }
 
 
     @Override
@@ -67,6 +73,15 @@ public class JdbcAccountDao implements AccountDao{
     }
 
     @Override
+    public String getUserNameByAccountId(int accountId) {
+        String sql = "SELECT tu.username " +
+                "FROM account AS a " +
+                "JOIN tenmo_user AS tu ON tu.user_id = a.user_id " +
+                "WHERE a.account_id = ?;";
+        return jdbcTemplate.queryForObject(sql, String.class, accountId);
+    }
+
+    @Override
     public void updateAccount(Account accountToUpdate) {
         String sql = "UPDATE account "+
                 "SET user_id = ?, balance = ? "+
@@ -86,5 +101,9 @@ public class JdbcAccountDao implements AccountDao{
         account.setUserId(sqlRowSet.getInt("user_id"));
         account.setBalance(sqlRowSet.getBigDecimal("balance"));
         return account;
+    }
+
+    public void commitToDatabase() throws SQLException{
+        dataSource.getConnection().commit();
     }
 }

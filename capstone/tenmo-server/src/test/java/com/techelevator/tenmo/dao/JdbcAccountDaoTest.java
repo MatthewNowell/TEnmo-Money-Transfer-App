@@ -69,6 +69,12 @@ public class JdbcAccountDaoTest extends BaseDaoTest {
         assertNull(sut.getIndividualAccount(2001));
     }
 
+    @Test
+    public void testGetUserNameByAccountId(){
+        assertEquals(sut.getUserNameByAccountId(2001), "Sam M");
+        assertEquals(sut.getUserNameByAccountId(2003), "Matt N");
+    }
+
     private void assertAccountsMatch(List<Account> expectedList, List<Account> actualList){
         for(int i = 0; i < actualList.size(); i++){
             assertAccountsMatch(expectedList.get(i), actualList.get(i));
