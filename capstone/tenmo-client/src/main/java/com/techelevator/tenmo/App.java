@@ -123,7 +123,13 @@ public class App {
 
 	private void sendBucks() {
         BigDecimal amountToSend = getAmountToSend();
-        int accountToSend = getAccountToSend(tenmoService.getAllAccounts(currentUser));
+        int accountToSend;
+        try {
+            accountToSend = getAccountToSend(tenmoService.getAllAccounts(currentUser));
+        } catch (InvalidTransferException e){
+            System.err.println("Invalid Transfer");
+            return;
+        }
         int accountFromSend = tenmoService.viewCurrentBalance(currentUser)[0].getAccountId();
         Transfer transfer = tenmoService.makeTransfer(currentUser, amountToSend, "Send", accountFromSend, accountToSend);
         System.out.println("Money Sent!");
@@ -132,7 +138,13 @@ public class App {
 
 	private void requestBucks() {
         BigDecimal amountToSend = getAmountToSend();
-        int accountToSend = getAccountToSend(tenmoService.getAllAccounts(currentUser));
+        int accountToSend;
+        try {
+            accountToSend = getAccountToSend(tenmoService.getAllAccounts(currentUser));
+        } catch (InvalidTransferException e){
+            System.err.println("Invalid Transfer");
+            return;
+        }
         int accountFromSend = tenmoService.viewCurrentBalance(currentUser)[0].getAccountId();
         tenmoService.makeTransfer(currentUser,amountToSend, "Request", accountFromSend, accountToSend);
         System.out.println("Money Requested!");
@@ -227,7 +239,7 @@ public class App {
         return amountToSend;
     }
 
-    private int getAccountToSend(Account[] accounts){
+    private int getAccountToSend(Account[] accounts) throws InvalidTransferException{
         int accountToSend = 0;
         boolean accountSet = false;
         Map<String,Integer> accountMap = new HashMap<>();
@@ -242,7 +254,11 @@ public class App {
 
         while (!accountSet){
             System.out.print("Please enter the username you would like to send/request >");
-            accountToSend = accountMap.get(scanner.nextLine().toLowerCase());
+            String accountName = scanner.nextLine().toLowerCase();
+            if(accountName.equalsIgnoreCase(currentUser.getUser().getUsername())){
+                throw new InvalidTransferException();
+            }
+            accountToSend = accountMap.get(accountName);
             for(Account account : accounts){
                 if(account.getAccountId() == accountToSend){
                     accountSet = true;
